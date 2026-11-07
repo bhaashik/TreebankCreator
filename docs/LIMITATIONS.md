@@ -34,3 +34,16 @@ This package is a **tested offline projection prototype**, plus code integration
 ## Reproducibility and user safety
 
 Do not run unknown downloaded HF custom model code without checking publisher/revision (`trust_remote_code=True` required for IndicTrans2). The optional HF parser loads PyTorch checkpoint files (pickle); never load untrusted checkpoints. Never place HF tokens in YAML. `udtl fetch-ud` downloads external source datasets; audit licenses. The project's MIT license only covers project code.
+
+## v0.2.0 bilingual experimental extension
+
+`udtl train-bilingual` is *not* Trankit custom training. It trains graph-aware
+bilingual layers and a target dependency scorer above cached frozen XLM-R
+representations. Hard alignments are treated as uncertain and projection losses
+are only weak supervision. The system currently does **not** calibrate automatic
+alignment confidences, integrate Apertium analyses directly into neural loss,
+predict target FEATS/lemma, or produce a target-only parser independent of the
+Hindi source reference. Its output is silver and needs human gold evaluation.
+Kaggle dual-GPU behavior was tested with two concurrent **CPU processes**, not
+on actual Kaggle T4x2 hardware; empirical accuracy and running time have yet to
+be determined. See `BILINGUAL_TRAINING.md` and `KAGGLE_DUAL_T4.md`.

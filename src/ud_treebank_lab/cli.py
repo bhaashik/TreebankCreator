@@ -105,6 +105,37 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--out", required=True)
     r.add_argument("--checkpoint", default="best.pt")
     r.add_argument("--device", default="auto")
+    # Bilingual source-guided training. This is NOT Trankit.TPipeline training;
+    # it uses frozen cached XLM-R embeddings plus new bilingual components.
+    r = sub.add_parser("make-bilingual-configs", help="Generate configs for a 13-language manifest")
+    r.add_argument("--manifest", required=True)
+    r.add_argument("--source", required=True)
+    r.add_argument("--config-dir", required=True)
+    r.add_argument("--cache-root", required=True)
+    r.add_argument("--runs-root", required=True)
+    r.add_argument("--model", default="xlm-roberta-base")
+    r.add_argument("--epochs", type=int, default=6)
+    r.add_argument("--batch-size", type=int, default=4)
+    r.add_argument("--max-pairs", type=int, default=None)
+    r = sub.add_parser("cache-bilingual", help="Cache Hindi/target frozen XLM-R word vectors")
+    r.add_argument("--config", required=True)
+    r.add_argument("--side", choices=["both", "source", "target"], default="both")
+    r.add_argument("--device", default=None)
+    r = sub.add_parser("train-bilingual", help="Train source-guided target-only bilingual dependency parser")
+    r.add_argument("--config", required=True)
+    r.add_argument("--device", default=None)
+    r.add_argument("--max-steps", type=int, help="Pause after N optimizer steps (testing/resume)")
+    r.add_argument("--no-auto-cache", action="store_true")
+    r = sub.add_parser("predict-bilingual", help="Export source-guided silver target CoNLL-U")
+    r.add_argument("--config", required=True)
+    r.add_argument("--out", default=None)
+    r.add_argument("--checkpoint", default="best.pt")
+    r.add_argument("--device", default="auto")
+    r = sub.add_parser("launch-bilingual", help="Run languages independently on distinct Kaggle/desktop GPUs")
+    r.add_argument("--configs", nargs="+", required=True)
+    r.add_argument("--gpus", default="0,1", help="Comma-separated physical GPU IDs e.g. 0,1")
+    r.add_argument("--no-precache-source", action="store_true")
+    r.add_argument("--dry-run", action="store_true")
     r = sub.add_parser("export-stanza", help="Export Stanza-compatible train/dev file layout")
     r.add_argument("--train", required=True)
     r.add_argument("--dev", required=True)
@@ -220,6 +251,30 @@ def main(argv: list[str] | None = None) -> int:
         elif args.cmd == "predict-hf":
             from .hf_parser import predict_hf
             _report(predict_hf(args.model_dir, args.input, args.out, args.checkpoint, args.device))
+        elif args.cmd == "make-bilingual-configs":
+            from .bilingual_manifest import make_configs
+            _report(make_configs(args.manifest, args.source, args.config_dir,
+                                 args.cache_root, args.runs_root, model=args.model,
+                                 epochs=args.epochs, batch_size=args.batch_size,
+                                 max_pairs=args.max_pairs))
+        elif args.cmd == "cache-bilingual":
+            from .bilingual_training import cache_for_config
+            _report(cache_for_config(args.config, args.side, args.device))
+        elif args.cmd == "train-bilingual":
+            from .bilingual_training import train_bilingual
+            _report(train_bilingual(args.config, device=args.device,
+                                    max_steps=args.max_steps, auto_cache=not args.no_auto_cache))
+        elif args.cmd == "predict-bilingual":
+            from .bilingual_training import predict_bilingual
+            _report(predict_bilingual(args.config, out_file=args.out,
+                                      checkpoint=args.checkpoint, device=args.device))
+        elif args.cmd == "launch-bilingual":
+            from .bilingual_launcher import launch
+            result = launch(args.configs, args.gpus.split(","),
+                            precache_source=not args.no_precache_source,
+                            dry_run=args.dry_run)
+            _report(result)
+            return 1 if result.get("failed") else 0
         elif args.cmd == "export-stanza":
             from .training import export_stanza
             _report(export_stanza(args.train, args.dev, args.out, args.language, args.treebank))

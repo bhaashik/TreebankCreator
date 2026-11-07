@@ -1,5 +1,31 @@
 # UD Treebank Lab
 
+## New in v0.2.0 — bilingual UD-guided neural parser and Kaggle T4×2 launcher
+
+**[Bilingual training documentation](docs/BILINGUAL_TRAINING.md)** · **[Kaggle two-GPU setup](docs/KAGGLE_DUAL_T4.md)** · **[Kaggle notebook](notebooks/Kaggle_Dual_T4.ipynb)**
+
+The bilingual trainer consumes **Hindi gold UD and corresponding unannotated target sentences together**, with automatically generated word-alignment evidence. Its Hindi source-graph features and target language representations interact through trainable alignment-aware parallel layers; only the **target dependency parsing head** predicts a tree. The underlying XLM-R transformer is frozen and word embeddings may be cached across epochs and languages. This is **not** the standard Trankit `TPipeline` API, which remains separately available as a baseline.
+
+```bash
+# Install optional pretrained Hugging Face encoder cache support
+python -m pip install -e '.[bilingual]'
+
+# Simple 3-sentence smoke test (not a useful trained parser)
+udtl cache-bilingual --config configs/bilingual_marathi_demo.yaml
+udtl train-bilingual --config configs/bilingual_marathi_demo.yaml
+udtl predict-bilingual --config configs/bilingual_marathi_demo.yaml
+
+# For real 13-language runs, generate YAMLs from your JSONL manifest (see docs)
+udtl launch-bilingual --configs configs/generated/*.yaml --gpus 0,1 --dry-run
+udtl launch-bilingual --configs configs/generated/*.yaml --gpus 0,1
+```
+
+The launcher runs one isolated Python process per GPU, shares the frozen Hindi embedding cache, handles a queue of language jobs, and resumes from each language's checkpoints. Kaggle T4×2 means **2 × 16 GB independent GPUs**, not a shared 32-GB GPU. Any interruptions require restoring checkpoints and embeddings to persistent paths from saved outputs or cloud storage.
+
+**Research limitations:** alignment weights are uncertain heuristics; weak projected supervision may reinforce systematic errors. Independent manually annotated target-language gold is essential for credible evaluation. The new bilingual parser provides source-guided dependency trees and provisional aligned-source UPOS, not full Apertium-integrated FEATS, target-only parsing, or constituency trees. The new GPU architecture and previous runtime projections are **not yet GPU-benchmarked**.
+
+---
+
 **Resumable cross-lingual Universal Dependencies (UD) treebank bootstrapping, using alignment projection, optional finite-state morphology, grammar-informed soft constraints, and trainable multilingual parsers.**
 
 Status: **research prototype v0.1.1, runnable offline end to end on the included demonstration.** The core projection, splitting, evaluation, visualization, and tests were run. Model downloads and GPU fine-tuning were **not** run in the development environment; verify each optional backend on your VM before launching a large project.

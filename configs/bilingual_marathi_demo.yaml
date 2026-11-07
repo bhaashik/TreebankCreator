@@ -1,0 +1,21 @@
+# Smoke test only: three tiny hand-aligned examples, NOT a useful Marathi parser.
+language: mr
+source_ud: ../examples/hindi_source.conllu
+targets: ../examples/marathi_targets.jsonl
+alignments: ../examples/manual_alignments.jsonl
+source_cache: ../runs/bilingual_cache/hindi
+# In a real 13-language run, share source_cache across all language configs.
+target_cache: ../runs/bilingual_cache/mr
+output_dir: ../runs/bilingual_mr
+model: xlm-roberta-base
+epochs: 3
+batch_size: 2
+accumulate: 2
+hidden: 192
+layers: 2
+save_steps: 5
+dev_fraction: 0.34
+max_words: 70
+max_subtokens: 256
+alignment_dropout: 0.15
+min_strength: 0.02

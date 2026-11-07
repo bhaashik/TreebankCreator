@@ -1,3 +1,12 @@
+# v0.2.0 — bilingual source-guided parser and dual-GPU launcher
+
+- New frozen-XLM-R Hindi–target neural dependency parser with target-only biaffine head.
+- New trainable graph-aware source representations, cross-attention, confidence-gated soft projection supervision, alignment-row dropout.
+- Resumable sharded embedding caching and step/epoch optimizer checkpoints.
+- Multi-language JSONL manifest generator and dual-GPU subprocess scheduler for Kaggle T4×2 and Ubuntu desktops.
+- Kaggle/Colab-friendly documentation and runnable Kaggle notebook.
+- Offline model/gradient/training/resume/dual-process tests (no online GPU benchmark).
+
 # Changelog
 
 ## v0.1.1 — 2026-11-06
