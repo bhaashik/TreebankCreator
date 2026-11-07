@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ud-treebank-lab"
+version = "0.1.0"
+description = "Reproducible multilingual UD annotation projection and parser bootstrapping"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = {text = "MIT"}
+authors = [{name = "UD Treebank Lab contributors"}]
+dependencies = ["PyYAML>=6.0,<7", "networkx>=2.8,<4"]
+
+[project.optional-dependencies]
+# Separate installations avoid unnecessary large downloads / incompatible torch versions.
+align = ["simalign>=0.4"]
+hf = ["torch>=2.1", "transformers>=4.39,<5"]
+translate = ["torch>=2.1", "transformers>=4.39,<5", "sentencepiece>=0.1.99", "indictranstoolkit>=1.0"]
+stanza = ["stanza>=1.8"]
+trankit = ["trankit>=1.1"]
+reports = ["matplotlib>=3.7"]
+test = ["pytest>=7.4"]
+
+[project.scripts]
+udtl = "ud_treebank_lab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
