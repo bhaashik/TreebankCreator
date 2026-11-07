@@ -9,3 +9,9 @@ data/
 runs/
 *.pt
 *.safetensors
+# Large downloaded model snapshots and local credentials
+assets/
+.rclone.conf
+rclone.conf
+.env
+.env.*

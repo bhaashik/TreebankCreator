@@ -8,3 +8,7 @@ When changing projection behavior, add tests for cycles, 0/1/many-to-many alignm
 root constraints, morphology ambiguity, interruption/resume, and data leakage.
 Document substantive changes in README.md and docs/.
 Never describe projected annotations as validated gold data.
+
+Keep Lightning Studio installation separate from generic Ubuntu VM venv setup.
+Use scripts/cloud_io.sh with rclone COPY, never destructive sync by default,
+and never package OAuth config or Hugging Face tokens with the source archive.

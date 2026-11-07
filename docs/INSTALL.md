@@ -1,5 +1,11 @@
 # Installation and GPU VM operations
 
+**Lightning AI Pro Studio users:** follow **[`LIGHTNING_AI_PRO.md`](LIGHTNING_AI_PRO.md)**
+for the correct Studio-managed Python environment, machine creation/start/sleep,
+Google Drive and Dropbox via rclone, remote model snapshots, and complete resume
+procedure. The **virtual-environment commands below are for generic Ubuntu/Linux
+VMs, not Lightning Studios**.
+
 ## Supported baseline
 
 - **Linux x86-64**, Python 3.10 or 3.11 recommended, internet for the initial model downloads.
@@ -20,7 +26,7 @@ python -m pytest
 bash scripts/demo.sh
 ```
 
-Install on Ubuntu using normal `python3-venv` if your base image lacks `venv`. The provided `scripts/setup_vm.sh` performs these steps automatically.
+Install on Ubuntu using normal `python3-venv` if your base image lacks `venv`. The provided `scripts/setup_vm.sh` performs these steps automatically **on generic VMs**. In a Lightning AI Studio, run `bash scripts/setup_lightning.sh` instead; Lightning documents one existing managed conda environment and does not support creating additional virtual environments inside a Studio.
 
 ## GPU checks
 
@@ -45,7 +51,7 @@ pip install -e '.[trankit]'      # Training a custom Trankit POS/dep parser
 pip install -e '.[stanza]'       # Automatic parsing of source aligned text and optional PSG inference
 ```
 
-**Dependency compatibility:** Some Trankit versions constrain transformer/PyTorch dependencies. If pip rejects a combination, put Trankit in a **separate venv**. Run annotation projection in the main venv; both processes communicate through plain CoNLL-U files. Do not force install incompatible versions. IndicTransToolkit 1.x currently recommends comparatively recent torch/transformers builds; keep translation isolated in a compatible venv if necessary.
+**Dependency compatibility:** Some Trankit versions constrain transformer/PyTorch dependencies. If pip rejects a combination, put Trankit in a **separate venv on a generic Ubuntu VM**, or **a separate Studio on Lightning AI** (do not make an extra venv inside a Studio). Run annotation projection in the primary environment; both backends communicate through plain CoNLL-U files. Do not force-install incompatible versions. IndicTransToolkit may require a comparatively recent torch/transformers build; isolate translation in another compatible VM/Studio if necessary.
 
 ## Hugging Face login and download caching
 

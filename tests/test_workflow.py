@@ -76,3 +76,13 @@ def test_visualize(tmp_path):
     assert result["rendered_trees"] == 3
     contents = (tmp_path / "render.html").read_text(encoding="utf-8")
     assert "<svg" in contents and "राम" in contents
+
+
+def test_model_reference_resolution(tmp_path):
+    from ud_treebank_lab.workflow import _model_ref
+    base = tmp_path / "configs"
+    assert _model_ref(base, "xlm-roberta-base") == "xlm-roberta-base"
+    assert (_model_ref(base, "ai4bharat/indictrans2-indic-indic-dist-320M")
+            == "ai4bharat/indictrans2-indic-indic-dist-320M")
+    assert _model_ref(base, "../assets/models/xlmr") == str(tmp_path / "assets/models/xlmr")
+    assert _model_ref(base, "/tmp/model") == "/tmp/model"

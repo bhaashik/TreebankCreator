@@ -1,5 +1,10 @@
 # Training parsers and resuming interrupted jobs
 
+For the complete **Lightning AI Pro Studio** training lifecycle, start/sleep controls,
+Google Drive/Dropbox model staging, checkpoint backups and cloud restoration, see
+[`LIGHTNING_AI_PRO.md`](LIGHTNING_AI_PRO.md). Studio sleeping stops a running Python
+process; resume starts at the last **completed** saved checkpoint or stage.
+
 ## The two available dependency backends
 
 **Trankit (recommended to start with when dependency versions permit):** calls the documented `trankit.TPipeline(training_config={category:'customized', task:'posdep', save_dir, train_conllu_fpath, dev_conllu_fpath}).train()` API. Uses Trankit's own pretrained multilingual transformer and adapters. Trankit is an independent model implementation; installation, language support and extra training flags are **version-specific**. It trains a combined POS/morphological-tag/dependency module and has its own released model files.

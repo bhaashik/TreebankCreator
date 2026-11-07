@@ -2,11 +2,11 @@
 
 **Resumable cross-lingual Universal Dependencies (UD) treebank bootstrapping, using alignment projection, optional finite-state morphology, grammar-informed soft constraints, and trainable multilingual parsers.**
 
-Status: **research prototype v0.1.0, runnable offline end to end on the included demonstration.** The core projection, splitting, evaluation, visualization, and tests were run. Model downloads and GPU fine-tuning were **not** run in the development environment; verify each optional backend on your VM before launching a large project.
+Status: **research prototype v0.1.1, runnable offline end to end on the included demonstration.** The core projection, splitting, evaluation, visualization, and tests were run. Model downloads and GPU fine-tuning were **not** run in the development environment; verify each optional backend on your VM before launching a large project.
 
 This tool **does not use LLMs to generate annotations**. An explicitly optional, conventional neural machine-translation adapter (IndicTrans2) can produce target *sentences* from a UD source treebank; it does not produce trees. Real parallel data may be supplied instead.
 
-## First success in five commands (CPU, no model download)
+## First success in five commands (generic Ubuntu VM, CPU, no model download)
 
 Python **3.10–3.12 recommended**. From the repository root:
 
@@ -21,6 +21,40 @@ bash scripts/demo.sh
 Open **`runs/marathi_demo/preview.html`** in a browser. You will find projected Marathi CoNLL-U, annotation metadata, training splits, metrics, and SVG dependency graphs.
 
 The **3 demonstration sentences** have *human-authored alignments* and deliberately simple structures. High scores on the demo have **zero statistical significance** for general treebank accuracy.
+
+## Lightning AI Pro: setup, cloud data/model storage, start/sleep/resume
+
+**Detailed guide:** [`docs/LIGHTNING_AI_PRO.md`](docs/LIGHTNING_AI_PRO.md).
+
+For **Lightning AI Studios**, use the existing managed Python environment: **do not run
+`python -m venv` or `scripts/setup_vm.sh` in a Studio**. Once you have opened a CPU Studio
+and uploaded/extracted this ZIP into `/teamspace/studios/this_studio/`:
+
+```bash
+cd /teamspace/studios/this_studio/ud-treebank-lab
+bash scripts/setup_lightning.sh
+# Switch to a GPU only when the models and data are ready.
+```
+
+If you have **Google Drive/Dropbox remotes configured with rclone** (or have copied your
+existing `rclone.conf` from Ubuntu into `~/.config/rclone/`), use:
+
+```bash
+bash scripts/cloud_io.sh pull-data drive:UDTreebankLab/data
+bash scripts/cloud_io.sh pull-models dropbox:UDTreebankLab/models
+# On a completed/paused experiment:
+bash scripts/cloud_io.sh push-runs dropbox:UDTreebankLab/backups/run_2026-11-06
+```
+
+Use one or both services; substitute your remote/folder names. This uses **non-deleting
+`rclone copy`** and *local* working files rather than training through a network mount.
+Downloaded local HF model snapshots can be referenced by relative YAML fields such as
+`../assets/models/xlm-roberta-base`; this release resolves such model directories
+relative to the configuration file. A ready-to-edit staging preset is provided at
+`configs/hindi_to_marathi_lightning_cloud.yaml`. Save a full `runs/` backup before **Sleep** to
+protect checkpoint state. Lightning Studios persist files/packages across Sleep,
+but running training processes are stopped. See the guide for detailed browser/CLI
+instructions, OAuth/headless setup, billing checks, and restart steps.
 
 ## Actual Hindi → target-language workflow
 
@@ -97,7 +131,8 @@ udtl synthesize --templates examples/synthetic_templates.json --out synth_data
 
 ## Documentation
 
-- [`docs/INSTALL.md`](docs/INSTALL.md): GPU Linux/Lightning AI/VM setup, model installation, resumption, storage.
+- [`docs/INSTALL.md`](docs/INSTALL.md): generic Ubuntu/GPU VM installation and resumption.
+- [`docs/LIGHTNING_AI_PRO.md`](docs/LIGHTNING_AI_PRO.md): complete Lightning AI Pro Studio creation, GPU start/sleep, Google Drive/Dropbox, remote model snapshots, backup and resume.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): dependency projection algorithm, constraints, confidence, reference approaches.
 - [`docs/DATA.md`](docs/DATA.md): exact input formats; parallel corpora, Apertium, multi-source, synthetic templates.
 - [`docs/TRAINING.md`](docs/TRAINING.md): Trankit, Hugging Face and Stanza, checkpoint guarantees, evaluation design.
@@ -105,6 +140,7 @@ udtl synthesize --templates examples/synthetic_templates.json --out synth_data
 - [`docs/LANGUAGES.md`](docs/LANGUAGES.md): all 22 Eighth Schedule languages and IndicTrans codes; priorities and risks.
 - [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md): scientific/engineering limitations and prioritized improvements.
 - [`docs/REFERENCES.md`](docs/REFERENCES.md): papers, repositories, model cards, UD license notes.
+- [`docs/CHANGELOG.md`](docs/CHANGELOG.md): release changes, including Lightning deployment additions.
 
 ## Outputs
 

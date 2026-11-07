@@ -36,6 +36,19 @@ def _path(config_dir: Path, s: str | Path | None) -> Path | None:
     return p if p.is_absolute() else (config_dir / p).resolve()
 
 
+def _model_ref(config_dir: Path, value: str) -> str:
+    """Resolve explicit local model directories relative to the YAML file.
+
+    HF repository identifiers such as ``xlm-roberta-base`` or
+    ``ai4bharat/indictrans2-indic-indic-dist-320M`` are preserved.
+    """
+    if value.startswith(("./", "../", "~/", "/")):
+        resolved = _path(config_dir, value)
+        assert resolved is not None
+        return str(resolved)
+    return value
+
+
 def run_workflow(config_file: str | Path, train_override: str | None = None) -> dict:
     path = Path(config_file).resolve()
     cfg = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -70,8 +83,8 @@ def run_workflow(config_file: str | Path, train_override: str | None = None) -> 
             state = stage / "translate.state.json"
             _check_stage(state, signature, [targets])
             transl = translate_ud(src, targets, src_lang=tcfg.get("source_language", "hin_Deva"),
-                                  tgt_lang=tcfg["target_language"], model_name=tcfg.get("model",
-                                  "ai4bharat/indictrans2-indic-indic-dist-320M"),
+                                  tgt_lang=tcfg["target_language"], model_name=_model_ref(base, tcfg.get("model",
+                                  "ai4bharat/indictrans2-indic-indic-dist-320M")),
                                   batch_size=int(tcfg.get("batch_size", 8)),
                                   device=tcfg.get("device", "auto"))
             write_json(state, {"signature": signature, "output": str(targets)})
@@ -127,7 +140,9 @@ def run_workflow(config_file: str | Path, train_override: str | None = None) -> 
                                             extra=train_cfg.get("extra"))
     elif backend == "hf":
         from .hf_parser import train_hf
-        extra = train_cfg.get("hf", {})
+        extra = dict(train_cfg.get("hf", {}))
+        if "pretrained" in extra:
+            extra["pretrained"] = _model_ref(base, str(extra["pretrained"]))
         run_info["training"] = train_hf(str(split_dir / "train.conllu"),
                                         str(split_dir / "dev.conllu"), str(out / "model_hf"),
                                         seed=seed, **extra)
