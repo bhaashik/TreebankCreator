@@ -1,5 +1,8 @@
 # UD Treebank Lab
 
+> **Bhaashik Codex handoff:** See [Codex start guide](docs/CODEX_START_HERE.md), [conversation and decisions](docs/CONVERSATION_HANDOFF.md), and [original release provenance](docs/RELEASE_PROVENANCE.md). Historical commits preserve v0.1.0, v0.1.1, and v0.2.0.
+
+
 ## New in v0.2.0 — bilingual UD-guided neural parser and Kaggle T4×2 launcher
 
 **[Bilingual training documentation](docs/BILINGUAL_TRAINING.md)** · **[Kaggle two-GPU setup](docs/KAGGLE_DUAL_T4.md)** · **[Kaggle notebook](notebooks/Kaggle_Dual_T4.ipynb)**
