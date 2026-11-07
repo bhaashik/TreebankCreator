@@ -1,0 +1,24 @@
+# sent_id = demo-001
+# text = राम ने किताब पढ़ी ।
+1	राम	राम	PROPN	_	_	4	nsubj	_	_
+2	ने	ने	ADP	_	_	1	case	_	_
+3	किताब	किताब	NOUN	_	_	4	obj	_	_
+4	पढ़ी	पढ़ना	VERB	_	_	0	root	_	_
+5	।	।	PUNCT	_	_	4	punct	_	_
+
+# sent_id = demo-002
+# text = सीता पानी पीती है ।
+1	सीता	सीता	PROPN	_	_	3	nsubj	_	_
+2	पानी	पानी	NOUN	_	_	3	obj	_	_
+3	पीती	पीना	VERB	_	_	0	root	_	_
+4	है	होना	AUX	_	_	3	aux	_	_
+5	।	।	PUNCT	_	_	3	punct	_	_
+
+# sent_id = demo-003
+# text = बच्चे मैदान में खेलते हैं ।
+1	बच्चे	बच्चा	NOUN	_	_	4	nsubj	_	_
+2	मैदान	मैदान	NOUN	_	_	4	obl	_	_
+3	में	में	ADP	_	_	2	case	_	_
+4	खेलते	खेलना	VERB	_	_	0	root	_	_
+5	हैं	होना	AUX	_	_	4	aux	_	_
+6	।	।	PUNCT	_	_	4	punct	_	_

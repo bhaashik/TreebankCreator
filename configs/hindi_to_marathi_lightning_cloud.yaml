@@ -1,0 +1,48 @@
+# Example for a Lightning Studio after rclone staging from Google Drive/Dropbox:
+#   bash scripts/cloud_io.sh pull-data drive:UDTreebankLab/data
+#   bash scripts/cloud_io.sh pull-models drive:UDTreebankLab/models
+# Run: udtl run configs/hindi_to_marathi_lightning_cloud.yaml
+# NOTE: You must actually supply these files; no large model/corpus is bundled.
+# Relative paths to CoNLL-U/JSONL/model snapshots resolve against this YAML file.
+project:
+  target: mar
+  output_dir: ../runs/marathi_lightning
+  seed: 17
+pairs:
+  - source_ud: ../data/ud_hindi_hdtb/hi_hdtb-ud-train.conllu
+    targets: ../data/parallel/marathi.jsonl
+    # If you prefer conventional MT, remove 'targets' above and enable instead:
+    # translate:
+    #   source_language: hin_Deva
+    #   target_language: mar_Deva
+    #   model: ../assets/models/indictrans2-320m
+    #   batch_size: 8
+    # Optional extra inputs when supplied:
+    # alignments: ../data/alignments.jsonl
+    # morphology: ../data/marathi_morph.jsonl
+alignment:
+  backend: simalign
+  model: xlmr  # SimAlign model alias; may download weights separately
+  method: itermax
+  device: auto
+projection:
+  min_quality: 0.45
+  dev_fraction: 0.10
+  rules:
+    direction: {}
+    root_upos: [VERB, AUX]
+    root_verb_bonus: 0.12
+training:
+  backend: hf
+  hf:
+    pretrained: ../assets/models/xlm-roberta-base
+    epochs: 6
+    batch_size: 4
+    accumulate: 4
+    lr: 0.0003
+    freeze_encoder: true
+    max_words: 70
+    save_steps: 200
+  # Use independent human-annotated gold data when available:
+  # gold_dev: ../data/gold/mr_dev.conllu
+  # gold_test: ../data/gold/mr_test.conllu

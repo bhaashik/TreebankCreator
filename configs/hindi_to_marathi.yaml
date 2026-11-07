@@ -1,0 +1,43 @@
+# Run from any working directory: relative paths resolve against THIS file.
+# Download Hindi UD source treebank first (see README).
+project:
+  target: mar
+  output_dir: ../runs/marathi_full
+  seed: 17
+pairs:
+  - source_ud: ../data/ud_hindi_hdtb/hi_hdtb-ud-train.conllu
+    translate:
+      source_language: hin_Deva
+      target_language: mar_Deva
+      model: ai4bharat/indictrans2-indic-indic-dist-320M
+      batch_size: 8
+    # Or replace translate with: targets: ../data/parallel/marathi.jsonl
+    # Or provide human/eflomal/awesome-align links: alignments: ../data/alignments.jsonl
+    # If available: morphology: ../data/marathi_morph.jsonl
+alignment:
+  backend: simalign
+  model: xlmr
+  method: itermax
+  device: auto
+projection:
+  min_quality: 0.45
+  dev_fraction: 0.10
+  rules:
+    direction: {}
+    root_upos: [VERB, AUX]
+    root_verb_bonus: 0.12
+training:
+  backend: hf  # or trankit, none
+  hf:
+    pretrained: xlm-roberta-base
+    epochs: 6
+    batch_size: 4
+    accumulate: 4
+    lr: 0.0003
+    freeze_encoder: true
+    max_words: 70
+    save_steps: 200
+  # For real accuracy, supply independent HUMAN ANNOTATED target data:
+  # gold_train: ../data/gold/mr_train.conllu
+  # gold_dev: ../data/gold/mr_dev.conllu
+  # gold_test: ../data/gold/mr_test.conllu

@@ -1,0 +1,2 @@
+{"language":"mr","targets":"/kaggle/input/my-ud-data/mr_targets.jsonl","alignments":"/kaggle/input/my-ud-data/mr_alignments.jsonl"}
+{"language":"bn","targets":"/kaggle/input/my-ud-data/bn_targets.jsonl","alignments":"/kaggle/input/my-ud-data/bn_alignments.jsonl"}

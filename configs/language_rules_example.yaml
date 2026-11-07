@@ -1,0 +1,10 @@
+# Experimental SOFT preferences, not hard universal grammar laws.
+# Apply ONLY after checking the target language's UD annotation convention.
+direction:
+  case: right
+  det: right
+  amod: right
+direction_bonus: 0.05
+root_upos: [VERB, AUX]
+root_verb_bonus: 0.12
+max_root_candidates: 3

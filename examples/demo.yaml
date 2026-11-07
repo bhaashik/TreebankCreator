@@ -1,0 +1,18 @@
+project:
+  target: mar
+  output_dir: ../runs/marathi_demo
+  seed: 17
+pairs:
+  - source_ud: hindi_source.conllu
+    targets: marathi_targets.jsonl
+    alignments: manual_alignments.jsonl
+projection:
+  min_quality: 0.15
+  dev_fraction: 0.34
+  rules:
+    direction:
+      case: right
+      amod: right
+    direction_bonus: 0.04
+training:
+  backend: none

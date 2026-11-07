@@ -1,0 +1,16 @@
+[
+  {
+    "id": "short-transitive",
+    "source_words": [
+      {"form":"{agent}", "upos":"PROPN", "head":3, "deprel":"nsubj"},
+      {"form":"पानी", "upos":"NOUN", "head":3, "deprel":"obj"},
+      {"form":"पीता", "upos":"VERB", "head":0, "deprel":"root"},
+      {"form":"।", "upos":"PUNCT", "head":3, "deprel":"punct"}
+    ],
+    "target_tokens": ["{agent}", "पाणी", "पितो", "."],
+    "alignments": [[0,0],[1,1],[2,2],[3,3]],
+    "slots": {
+      "agent": [{"source":"राम", "target":"राम"}, {"source":"श्याम", "target":"श्याम"}]
+    }
+  }
+]
