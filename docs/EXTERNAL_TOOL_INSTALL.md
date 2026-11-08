@@ -174,3 +174,13 @@ References:
 - [SimAlign installation](https://pypi.org/project/simalign/)
 - [AWESOME-align installation and CLI](https://github.com/neulab/awesome-align)
 - [Apertium/lttoolbox packaging](https://github.com/apertium/lttoolbox)
+
+## NVIDIA Titan V (Volta sm_70) compatibility
+
+Do **not** use the generic `pip install torch` route on a Titan V. The dedicated
+[supported CUDA 12.6 setup profile](TITAN_V.md) creates a separate environment,
+pins `torch==2.14.1`, protects subsequent pip dependency resolution and runs a
+real `sm_70` CUDA operation before claiming that the GPU environment works.
+Invoke the profile explicitly before running the pipeline, and keep
+`setup.on_missing: error` in the alignment YAML so a subprocess does not
+silently create a different environment from the running parser.

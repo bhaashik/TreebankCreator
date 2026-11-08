@@ -1,3 +1,15 @@
+## v0.3.4 — Dedicated NVIDIA Titan V / Volta CUDA profile
+
+- New isolated and opt-in `scripts/setup_titanv.sh` profile using the official
+  PyTorch 2.14.1 CUDA 12.6 wheel, with a pip constraint pin retained after activation.
+- Added `scripts/check_titanv.py` with GPU identity, compute capability,
+  compiled `sm_70` kernels and real CUDA matmul verification.
+- Added `scripts/activate_titanv.sh`, sample Titan V corpus YAML, and
+  practical runtime estimates documented with their measurement limitations.
+- Added CPU-only tests of installation preflight, constraints and incompatible
+  CUDA/GPU rejection. Real Titan V throughput and downloads not validated in CI.
+- Existing v0.3.3 installers and supplied-file priority remain unchanged.
+
 # v0.3.3 — explicit neural-alignment and Apertium setup (2026-11-08)
 
 - Added `scripts/install_linguistic_tools.sh`, an idempotent opt-in installer

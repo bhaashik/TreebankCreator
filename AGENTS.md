@@ -50,3 +50,13 @@ Keep validation against source CoNLL-U and target token order. See
 - `backend: auto` is opt-in, selects SimAlign first and AWESOME-align second;
   for published experiments pin the actual backend and pretrained model.
 - The legacy AWESOME CLI is tested with local mocks, not certified on GPUs.
+
+## Titan V GPU profile (v0.3.4)
+
+- `scripts/setup_titanv.sh` must not change global Python, GPU drivers or CUDA toolkit.
+- Preserve the dedicated `.venv-titanv` environment and PyTorch 2.14.1/cu126 pin
+  for Volta `sm_70`; do not use generic `pip install torch` for this environment.
+- `scripts/check_titanv.py` must verify actual GPU computations, not just import torch.
+- The `--dry-run` and `--check` flows must not install anything.
+- Installation and GPU throughput are not validated in offline CI; retain realistic
+  estimates and per-machine benchmark guidance, not claimed timings.

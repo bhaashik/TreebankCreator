@@ -3,6 +3,33 @@
 > **Bhaashik Codex handoff:** See [Codex start guide](docs/CODEX_START_HERE.md), [conversation and decisions](docs/CONVERSATION_HANDOFF.md), and [original release provenance](docs/RELEASE_PROVENANCE.md). Historical commits preserve v0.1.0, v0.1.1, and v0.2.0.
 
 
+## New in v0.3.4 — NVIDIA Titan V GPU setup profile
+
+The **Titan V / Volta (sm_70)** needs an explicitly compatible PyTorch CUDA
+wheel. Use the isolated `scripts/setup_titanv.sh` installer instead of a plain
+`pip install torch`, which may select CUDA 13 and fail on this GPU.
+
+```bash
+# Preflight: no downloads, no system changes
+bash scripts/setup_titanv.sh --dry-run
+
+# Actual installation; Python 3.10-3.12 and working NVIDIA driver required
+bash scripts/setup_titanv.sh --python python3.12
+source scripts/activate_titanv.sh
+python scripts/check_titanv.py   # confirms GPU and executes an sm_70 CUDA kernel
+
+# Existing alignment files still take precedence; otherwise generate with GPU
+udtl prepare-resources --config configs/corpus_titanv_example.yaml --dry-run
+```
+
+The profile creates **`.venv-titanv/`**, installs **PyTorch 2.14.1 from the
+CUDA 12.6 wheel index**, and pins the torch version during subsequent pip
+installation of SimAlign and the bilingual parser. It neither changes system
+CUDA/Python nor downloads model weights during preflight. A separate
+`--with-awesome` option attempts the legacy AWESOME-align package without
+relaxing the torch constraint. The NVIDIA driver and compatible Python must
+already be present. **[Titan V installation and runtime guide](docs/TITAN_V.md)**.
+
 ## New in v0.3.2 — configuration-driven conditional reuse and setup
 
 The corpus YAML now controls resource availability, automatic import of already-existing
@@ -86,7 +113,7 @@ The launcher runs one isolated Python process per GPU, shares the frozen Hindi e
 
 **Resumable cross-lingual Universal Dependencies (UD) treebank bootstrapping, using alignment projection, optional finite-state morphology, grammar-informed soft constraints, and trainable multilingual parsers.**
 
-Status: **research prototype v0.3.2, with offline-tested corpus refinement, projection, and small synthetic bilingual training paths.** Projection, refinement, training with mock cached embeddings, evaluation, visualization, and regression tests were exercised offline. Real XLM-R downloads and GPU fine-tuning were **not** run in this environment; verify each optional backend before launching a large experiment.
+Status: **research prototype v0.3.4, with offline-tested corpus refinement, projection, and small synthetic bilingual training paths.** Projection, refinement, training with mock cached embeddings, evaluation, visualization, and regression tests were exercised offline. Real XLM-R downloads and GPU fine-tuning were **not** run in this environment; verify each optional backend before launching a large experiment.
 
 This tool **does not use LLMs to generate annotations**. An explicitly optional, conventional neural machine-translation adapter (IndicTrans2) can produce target *sentences* from a UD source treebank; it does not produce trees. Real parallel data may be supplied instead.
 

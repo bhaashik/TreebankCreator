@@ -1,0 +1,4 @@
+# Titan V / Volta (sm_70): last official PyTorch release family offering cu126 wheels.
+# Use ONLY with the isolated Titan V venv and PyTorch cu126 install index.
+# This constraint prevents later optional pip extras from replacing torch with CUDA 13.
+torch==2.14.1

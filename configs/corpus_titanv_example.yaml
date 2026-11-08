@@ -1,0 +1,38 @@
+# Titan V / Volta sm_70 example. Configure paths to your real datasets.
+# Run scripts/setup_titanv.sh and source scripts/activate_titanv.sh FIRST.
+# All resource paths are relative to this YAML file.
+source_ud: ../examples/hindi_source.conllu
+targets: ../examples/marathi_targets.jsonl
+output_dir: ../runs/titanv_corpus_demo
+
+resources:
+  alignment:
+    mode: auto                 # supplied | auto | generate | skip
+    available: auto
+    path: ../data/marathi/alignment.jsonl
+    format: auto               # jsonl | awesome | a3 | auto
+    if_missing: generate       # if unavailable, use installed SimAlign
+    backend: simalign
+    model: xlmr
+    method: itermax
+    device: cuda
+    setup:
+      on_missing: error        # no implicit install; set up .venv-titanv separately
+      check_module: simalign
+
+  apertium:
+    mode: auto
+    available: auto
+    path: ../data/marathi/apertium.stream
+    format: auto
+    if_missing: skip           # when no Apertium stream or compiled analyzer
+    layout: auto
+
+  unimorph:
+    mode: auto
+    available: auto
+    if_missing: skip
+
+refinement:
+  iterations: 3
+  min_affix_support: 3
