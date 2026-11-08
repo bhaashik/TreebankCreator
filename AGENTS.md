@@ -31,3 +31,12 @@ Pharaoh/GIZA A3 alignments and native Apertium outputs to JSONL. Conversion
 must never auto-run SimAlign or Apertium or overwrite supplied raw inputs.
 Keep validation against source CoNLL-U and target token order. See
 `docs/EXTERNAL_RESOURCE_IMPORT.md` and `tests/test_resource_import.py`.
+
+### Resource lifecycle in v0.3.2
+- Do not generate or install anything implicitly. `resources` omission means `skip`.
+- Use `udtl prepare-resources --dry-run` to audit planned actions.
+- Reuse user-supplied JSONL; convert user-supplied raw data into separate managed files.
+- Only execute a configured `setup.install_command` if `setup.on_missing: install`,
+  a generator is needed, and the executable/module/analyzer is missing.
+- Never modify or overwrite an original input file. Keep resource and corpus manifests.
+- Preserve old `mode: supplied|generate|skip` configurations.

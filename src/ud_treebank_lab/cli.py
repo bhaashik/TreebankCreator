@@ -139,6 +139,10 @@ def build_parser() -> argparse.ArgumentParser:
     r = sub.add_parser("import-resources", help="Separate YAML-configured import of supplied resources")
     r.add_argument("--config", required=True)
     r.add_argument("--overwrite", action="store_true")
+    r = sub.add_parser("prepare-resources", help="Conditionally reuse/import/generate corpus inputs")
+    r.add_argument("--config", required=True, help="Corpus refinement YAML")
+    r.add_argument("--dry-run", action="store_true", help="Report actions without writing or installing")
+    r.add_argument("--force", action="store_true", help="Regenerate only managed derived resources")
     r = sub.add_parser("refine-corpus", help="CPU-only corpus-wide alignment/morphology induction")
     r.add_argument("--config", required=True, help="Corpus preprocessing YAML with explicit resource modes")
     r.add_argument("--force", action="store_true", help="Recompute derived outputs, never supplied inputs")
@@ -300,6 +304,9 @@ def main(argv: list[str] | None = None) -> int:
         elif args.cmd == "import-resources":
             from .resource_import import import_resources
             _report(import_resources(args.config, overwrite=args.overwrite))
+        elif args.cmd == "prepare-resources":
+            from .corpus_resources import prepare_corpus_resources
+            _report(prepare_corpus_resources(args.config, force=args.force, dry_run=args.dry_run))
         elif args.cmd == "refine-corpus":
             from .corpus_refinement import run_corpus_refinement
             _report(run_corpus_refinement(args.config, force=args.force))

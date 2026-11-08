@@ -4,8 +4,9 @@ This is a CPU-only **pre-neural** stage. It consumes Hindi gold UD and parallel
 **target tokens**, optionally pre-existing word alignments and morphological
 resources, and generates *uncertain* repaired alignments and linguistic hints.
 It **does not** train a morphology generator, neural aligner, XLM-R or Trankit.
-It never edits input files. No downloading or expensive tool runs occur unless
-`mode: generate` is explicitly selected in YAML.
+It never edits input files. No downloading or expensive tool runs occur unless `mode: generate`
+or `mode: auto` with `if_missing: generate` is explicitly selected in YAML.
+For automatic input detection and setup, see [Conditional resource setup](CONDITIONAL_RESOURCE_SETUP.md).
 
 ## Installation and first smoke test
 

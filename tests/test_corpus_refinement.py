@@ -179,9 +179,11 @@ def test_generators_are_called_only_with_explicit_generate(tmp_path, monkeypatch
     _data(tmp_path)
     config=_config(tmp_path,align='generate',morph='generate')
     doc=yaml.safe_load(config.read_text())
-    doc['resources']['apertium']['analyzer_bin']='initial.jsonl'  # mock executable path
+    doc['resources']['apertium']['analyzer_bin']='initial.jsonl'  # mock analyzer file
+    doc['resources']['apertium']['binary']='python'  # present test-only executable
+    doc['resources']['alignment']['backend']='identity'  # no SimAlign setup needed
     config.write_text(yaml.safe_dump(doc))
-    from ud_treebank_lab import corpus_refinement as cr
+    from ud_treebank_lab import corpus_resources as cr
     calls=[]
     def fake_alignment(src,tgt,dst,**kwargs):
         calls.append('alignment')

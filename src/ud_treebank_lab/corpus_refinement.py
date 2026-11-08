@@ -610,53 +610,25 @@ def _output_paths(directory: Path) -> dict[str, Path]:
 
 def run_corpus_refinement(filename: str | Path, *, force: bool = False) -> dict:
     cfg = read_corpus_config(filename)
+    from .corpus_resources import prepare_corpus_resources
+    # Resolve existing input, import raw formats, or explicitly generate a
+    # missing resource. This also allows a separate `prepare-resources` run.
+    prepared = prepare_corpus_resources(cfg, force=force)
+    selected = prepared["selected_inputs"]
     dest = Path(cfg["output_dir"])
     dest.mkdir(parents=True, exist_ok=True)
     resources = cfg["resources"]
     outputs = _output_paths(dest)
-    selected = {}
-    for name, spec in resources.items():
-        mode = spec["mode"]
-        if mode == "supplied":
-            selected[name] = spec["path"]
-        elif mode == "skip":
-            selected[name] = None
-        elif mode == "generate":
-            selected[name] = str(dest / ("initial_alignments.generated.jsonl" if name == "alignment"
-                                         else "apertium.generated.jsonl"))
-    ingredients = [Path(cfg["source_ud"]), Path(cfg["targets"])]
-    for name, path in selected.items():
-        if resources[name]["mode"] == "supplied":
-            ingredients.append(Path(path))
-    for name, item in resources.items():
-        for k in ("analyzer_bin", "lexicon"):
-            if item.get(k):
-                ingredients.append(Path(item[k]))
-    signature = fingerprint({"algorithm": "corpus-refine-0.3.0", **cfg}, *ingredients)
+    ingredients = [Path(cfg["source_ud"]), Path(cfg["targets"]),
+                   Path(prepared["manifest"])]
+    ingredients += [Path(source) for source in selected.values() if source]
+    signature = fingerprint({"algorithm": "corpus-refine-0.3.2", **cfg}, *ingredients)
     old_manifest = json.loads(outputs["manifest"].read_text()) if outputs["manifest"].exists() else None
     complete = all(p.is_file() for p in outputs.values())
     if complete and old_manifest and old_manifest.get("signature") == signature and not force:
         return {"status": "already-complete", "output_dir": str(dest),
-                "alignments": str(outputs["alignments"]), "signature": signature}
-    # Only auto-generated files are re-created. Supplied resources are read-only.
-    for name in ("alignment", "apertium"):
-        if resources[name]["mode"] != "generate":
-            continue
-        generated = Path(selected[name])
-        if old_manifest and old_manifest.get("signature") != signature and generated.exists():
-            generated.unlink()
-        if name == "alignment":
-            spec = resources[name]
-            lex = json.loads(Path(spec["lexicon"]).read_text(encoding="utf-8")) if spec.get("lexicon") else None
-            run_alignment(cfg["source_ud"], cfg["targets"], str(generated),
-                          backend=spec.get("backend", "simalign"),
-                          model=spec.get("model", "xlmr"), method=spec.get("method", "itermax"),
-                          device=spec.get("device", "auto"), lexicon=lex)
-        else:
-            spec = resources[name]
-            generate_apertium_lattice(cfg["targets"], str(generated), spec["analyzer_bin"],
-                                     binary=spec.get("binary", "lt-proc"),
-                                     batch_size=spec.get("batch_size", 1000))
+                "alignments": str(outputs["alignments"]), "signature": signature,
+                "resources": prepared["stages"]}
     data, unimorph = _load_pairs(cfg["source_ud"], cfg["targets"], selected["alignment"],
                                  selected["apertium"], selected["unimorph"],
                                  cfg["refinement"]["max_words"])
@@ -673,6 +645,7 @@ def run_corpus_refinement(filename: str | Path, *, force: bool = False) -> dict:
     total_null = sum(len(record["null_target"]) for record in refined)
     report = {"status": "complete", "sentence_pairs": len(data),
               "initial_alignment_mode": resources["alignment"]["mode"],
+              "resource_stages": prepared["stages"],
               "apertium_mode": resources["apertium"]["mode"],
               "unimorph_mode": resources["unimorph"]["mode"],
               "changed_sentences": changed, "null_or_unresolved_target_tokens": total_null,

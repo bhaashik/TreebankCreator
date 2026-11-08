@@ -1,3 +1,16 @@
+## v0.3.2 — Conditional resource availability, import, generation and setup
+
+- One corpus YAML can select already-available JSONL/raw files, automatically convert
+  existing AWESOME/GIZA A3 and Apertium streams, or explicitly generate absent inputs.
+- `mode: auto` with `available: auto|true|false` and `if_missing: generate|skip|error`;
+  omitted resource default is still `skip` (fully backward compatible).
+- `udtl prepare-resources --config ... [--dry-run|--force]` independently prepares
+  the same resources used by `udtl refine-corpus` / `corpus_preprocess`.
+- Optional setup check for installed Python aligner / lt-proc / analyzer bin;
+  install command only if explicitly configured and setup is absent.
+- Content signatures, idempotent reuse, audit manifest, safe managed outputs,
+  and no implicit modification of supplied data. Regression tests for each path.
+
 ## v0.3.1 — Standalone import of existing alignment/Apertium files
 
 - Added `udtl import-alignments`, `udtl import-apertium` and YAML-controlled

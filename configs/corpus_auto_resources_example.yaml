@@ -1,0 +1,45 @@
+# Availability-aware resource orchestration, opt-in. All paths are relative to YAML.
+# Edit source_ud and targets before using this file on a real corpus.
+source_ud: ../examples/hindi_source.conllu
+targets: ../examples/marathi_targets.jsonl
+output_dir: ../runs/auto_resources_demo
+resources:
+  alignment:
+    mode: auto                 # supplied | auto | generate | skip
+    available: auto            # true = require path; false = deliberately missing; auto = check file
+    path: ../examples/existing_awesome_align.txt
+    format: auto               # jsonl | auto | awesome | a3
+    if_missing: generate      # generate | skip | error
+    sentence_order: source_ud
+    verify_forms: true
+    backend: simalign          # only used when generation is necessary
+    model: xlmr
+    method: itermax
+    device: auto
+    setup:
+      on_missing: error        # error (default) | skip | install
+      check_module: simalign
+      # To OPT IN to automatic setup, change on_missing to install and provide:
+      # install_command: [python, -m, pip, install, simalign]
+  apertium:
+    mode: auto
+    available: auto
+    # Supply a raw Apertium stream or a converted per-sentence JSONL file.
+    path: ../examples/existing_apertium.stream
+    format: auto              # auto | jsonl | raw
+    if_missing: skip          # change to generate only with a valid analyzer_bin
+    layout: auto
+    # analyzer_bin: ../data/apertium/target.autobil.bin
+    binary: lt-proc
+    setup:
+      on_missing: error
+      check_executable: lt-proc
+      # For auto setup, explicitly provide install_command and on_missing: install.
+  unimorph:
+    mode: auto
+    available: auto
+    if_missing: skip
+    # path: ../data/unimorph_target.tsv
+refinement:
+  iterations: 3
+  min_affix_support: 3

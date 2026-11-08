@@ -3,6 +3,23 @@
 > **Bhaashik Codex handoff:** See [Codex start guide](docs/CODEX_START_HERE.md), [conversation and decisions](docs/CONVERSATION_HANDOFF.md), and [original release provenance](docs/RELEASE_PROVENANCE.md). Historical commits preserve v0.1.0, v0.1.1, and v0.2.0.
 
 
+## New in v0.3.2 — configuration-driven conditional reuse and setup
+
+The corpus YAML now controls resource availability, automatic import of already-existing
+AWESOME/GIZA A3 alignments or Apertium streams, conditional generation only if data are
+missing, and optional setup only when the tool is unavailable. All of this is **opt-in**;
+the default remains `skip`, and external installers are never chosen automatically.
+
+```bash
+udtl prepare-resources --config configs/corpus_auto_resources_example.yaml --dry-run
+udtl prepare-resources --config configs/corpus_auto_resources_example.yaml
+udtl refine-corpus --config configs/corpus_auto_resources_example.yaml
+```
+
+**[Conditional resource setup](docs/CONDITIONAL_RESOURCE_SETUP.md)** ·
+[Example configuration](configs/corpus_auto_resources_example.yaml) ·
+[Raw import details](docs/EXTERNAL_RESOURCE_IMPORT.md)
+
 ## New in v0.3.1 — import existing external resources (no rerunning tools)
 
 Existing AWESOME-align Pharaoh (`i-j`, zero-based) and GIZA++ `.A3.final`
@@ -48,7 +65,7 @@ The launcher runs one isolated Python process per GPU, shares the frozen Hindi e
 
 **Resumable cross-lingual Universal Dependencies (UD) treebank bootstrapping, using alignment projection, optional finite-state morphology, grammar-informed soft constraints, and trainable multilingual parsers.**
 
-Status: **research prototype v0.3.1, with offline-tested corpus refinement, projection, and small synthetic bilingual training paths.** Projection, refinement, training with mock cached embeddings, evaluation, visualization, and regression tests were exercised offline. Real XLM-R downloads and GPU fine-tuning were **not** run in this environment; verify each optional backend before launching a large experiment.
+Status: **research prototype v0.3.2, with offline-tested corpus refinement, projection, and small synthetic bilingual training paths.** Projection, refinement, training with mock cached embeddings, evaluation, visualization, and regression tests were exercised offline. Real XLM-R downloads and GPU fine-tuning were **not** run in this environment; verify each optional backend before launching a large experiment.
 
 This tool **does not use LLMs to generate annotations**. An explicitly optional, conventional neural machine-translation adapter (IndicTrans2) can produce target *sentences* from a UD source treebank; it does not produce trees. Real parallel data may be supplied instead.
 
