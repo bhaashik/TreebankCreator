@@ -16,7 +16,7 @@ import torch
 from torch.nn import functional as F
 
 from .bilingual_cache import cache_embeddings, read_embeddings
-from .bilingual_config import read_config
+from .bilingual_config import read_config, ensure_corpus_preprocessing
 from .bilingual_data import Pair, label_inventory, load_pairs, soft_structural_targets, split_pairs
 from .bilingual_model import ParallelParser, weak_loss
 from .conllu import Word, Sentence, read_conllu, validate_tree
@@ -43,6 +43,8 @@ def _pairs(cfg: dict) -> list[Pair]:
 
 def cache_for_config(config_file: str, side: str = "both", device: str | None = None) -> dict:
     cfg = read_config(config_file)
+    if side in ("target", "both"):
+        ensure_corpus_preprocessing(cfg)
     if side not in ("source", "target", "both"):
         raise ValueError("side must be source, target or both")
     params = dict(model=cfg["model"], device=device or cfg["device"],
@@ -208,6 +210,7 @@ def _atomic_save(data: dict, p: Path):
 def train_bilingual(config_file: str, *, device: str | None = None,
                     max_steps: int | None = None, auto_cache: bool = True) -> dict:
     cfg = read_config(config_file)
+    ensure_corpus_preprocessing(cfg)
     if max_steps is not None and max_steps < 1:
         raise ValueError("max_steps must be a positive optimizer-step count")
     if device:
@@ -341,6 +344,7 @@ def train_bilingual(config_file: str, *, device: str | None = None,
 def predict_bilingual(config_file: str, *, out_file: str | None = None,
                       checkpoint: str = "best.pt", device: str = "auto") -> dict:
     cfg = read_config(config_file)
+    ensure_corpus_preprocessing(cfg)
     if device == "auto":
         device = "cuda" if torch.cuda.is_available() else "cpu"
     pairs, src, tgt, width = _load_data(cfg)

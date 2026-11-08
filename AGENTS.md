@@ -16,3 +16,10 @@ and never package OAuth config or Hugging Face tokens with the source archive.
 Bilingual extension: see docs/BILINGUAL_TRAINING.md and docs/KAGGLE_DUAL_T4.md. Cached XLM-R weights are *never optimized*; Hindi UD remains the source branch with no Hindi parser. Keep independent target gold evaluation and do not call projection agreement LAS. Do not silently treat hard word-alignment links as certain.
 
 Codex handoff: read docs/CONVERSATION_HANDOFF.md, docs/CODEX_START_HERE.md, and docs/RELEASE_PROVENANCE.md before modifying cross-lingual components. Original release commits are historical snapshots; do not rewrite them.
+
+Corpus refinement (v0.3): read `docs/CORPUS_REFINEMENT.md`. Never run SimAlign
+or Apertium for supplied files. Default resource mode is skip. Never modify
+supplied input files; do not claim inferred affix hypotheses are gold labels.
+Keep a regression test for Hindi `ने` incorrectly paired with target
+`शाहजेहन` and for repeated cross-script names. Preserve original raw
+alignment provenance and soft uncertainty for training.
