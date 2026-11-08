@@ -1,0 +1,65 @@
+name: Publish conditional resource setup (v0.3.2)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.migration/v0.3.2.patch.xz'
+      - '.github/workflows/import-v032.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: publish-v032
+  cancel-in-progress: false
+
+jobs:
+  import-and-test:
+    if: github.repository == 'bhaashik/TreebankCreator'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify and apply v0.3.2 update
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '9550877bfd9c9c20f23e49574a3c6a7e3b26bfa4ad52ae3a2c02ccbe63ea38ea  .migration/v0.3.2.patch.xz' | sha256sum -c -
+          xz -dc .migration/v0.3.2.patch.xz > "$RUNNER_TEMP/v032.patch"
+          git apply --check "$RUNNER_TEMP/v032.patch"
+          git apply --index "$RUNNER_TEMP/v032.patch"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU dependencies and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[test]' numpy
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pytest -q
+      - name: Publish v0.3.2 and tag, preserving Git history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$GITHUB_SHA" || { echo 'main changed; refusing to push'; exit 1; }
+          git rm -f .migration/v0.3.2.patch.xz .github/workflows/import-v032.yml
+          git add -A
+          git commit -m 'Add conditional resource detection, conversion, generation and setup (v0.3.2)'
+          git tag -a v0.3.2 -m 'TreebankCreator v0.3.2 conditional resource preparation'
+          git push origin HEAD:refs/heads/main refs/tags/v0.3.2
+      - name: Publish documentation
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
