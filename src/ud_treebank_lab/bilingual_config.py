@@ -5,7 +5,7 @@ from pathlib import Path
 import yaml
 
 REQUIRED = {"language", "source_ud", "targets", "alignments", "source_cache", "target_cache", "output_dir"}
-PATHS = {"source_ud", "targets", "alignments", "source_cache", "target_cache", "output_dir", "gold_dev"}
+PATHS = {"source_ud", "targets", "alignments", "source_cache", "target_cache", "output_dir", "gold_dev", "corpus_preprocess"}
 DEFAULTS = {"model": "xlm-roberta-base", "epochs": 6, "batch_size": 4,
             "accumulate": 4, "lr": 0.0003, "hidden": 192, "layers": 2,
             "dropout": 0.15, "alignment_dropout": 0.15,
@@ -24,7 +24,7 @@ def read_config(filename: str | Path) -> dict:
     missing = REQUIRED - set(raw)
     if missing:
         raise ValueError(f"Missing required keys: {sorted(missing)}")
-    unknown = set(raw) - (REQUIRED | set(DEFAULTS) | {"gold_dev"})
+    unknown = set(raw) - (REQUIRED | set(DEFAULTS) | {"gold_dev", "corpus_preprocess"})
     if unknown:
         raise ValueError(f"Unsupported bilingual config keys: {sorted(unknown)}")
     cfg = {**DEFAULTS, **raw}
@@ -46,3 +46,26 @@ def read_config(filename: str | Path) -> dict:
     if cfg["lr"] <= 0 or cfg["label_weight"] < 0 or cfg["min_strength"] < 0:
         raise ValueError("lr positive, min_strength and label_weight nonnegative")
     return cfg
+
+
+def ensure_corpus_preprocessing(cfg: dict) -> dict | None:
+    """Run expensive corpus prep only when explicitly declared in model YAML.
+
+    A supplied file in that corpus config is *never* recomputed. An already
+    complete matching corpus run is reused. No-op for original 0.2 configs.
+    """
+    if not cfg.get("corpus_preprocess"):
+        return None
+    from .corpus_config import read_corpus_config
+    from .corpus_refinement import run_corpus_refinement
+    from pathlib import Path
+    prepared = read_corpus_config(cfg["corpus_preprocess"])
+    expected = (Path(prepared["output_dir"]) / "alignments.refined.jsonl").resolve()
+    actual = Path(cfg["alignments"]).resolve()
+    if expected != actual:
+        raise ValueError(f"Bilingual alignments must point at corpus refinement output: {expected}")
+    if Path(cfg["source_ud"]).resolve() != Path(prepared["source_ud"]).resolve():
+        raise ValueError("Bilingual and corpus source_ud paths differ")
+    if Path(cfg["targets"]).resolve() != Path(prepared["targets"]).resolve():
+        raise ValueError("Bilingual and corpus target paths differ")
+    return run_corpus_refinement(cfg["corpus_preprocess"])

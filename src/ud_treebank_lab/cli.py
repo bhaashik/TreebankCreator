@@ -117,6 +117,9 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--epochs", type=int, default=6)
     r.add_argument("--batch-size", type=int, default=4)
     r.add_argument("--max-pairs", type=int, default=None)
+    r = sub.add_parser("refine-corpus", help="CPU-only corpus-wide alignment/morphology induction")
+    r.add_argument("--config", required=True, help="Corpus preprocessing YAML with explicit resource modes")
+    r.add_argument("--force", action="store_true", help="Recompute derived outputs, never supplied inputs")
     r = sub.add_parser("cache-bilingual", help="Cache Hindi/target frozen XLM-R word vectors")
     r.add_argument("--config", required=True)
     r.add_argument("--side", choices=["both", "source", "target"], default="both")
@@ -257,6 +260,9 @@ def main(argv: list[str] | None = None) -> int:
                                  args.cache_root, args.runs_root, model=args.model,
                                  epochs=args.epochs, batch_size=args.batch_size,
                                  max_pairs=args.max_pairs))
+        elif args.cmd == "refine-corpus":
+            from .corpus_refinement import run_corpus_refinement
+            _report(run_corpus_refinement(args.config, force=args.force))
         elif args.cmd == "cache-bilingual":
             from .bilingual_training import cache_for_config
             _report(cache_for_config(args.config, args.side, args.device))

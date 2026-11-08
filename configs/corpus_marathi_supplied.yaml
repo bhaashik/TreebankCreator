@@ -1,0 +1,19 @@
+# CPU-only corpus-wide correction demo. Uses EXISTING manual alignments.
+# Running this does not start SimAlign, Apertium, XLM-R or any network request.
+source_ud: ../examples/hindi_source.conllu
+targets: ../examples/marathi_targets.jsonl
+output_dir: ../runs/marathi_corpus
+resources:
+  alignment:
+    mode: supplied
+    path: ../examples/manual_alignments.jsonl
+  apertium:
+    mode: skip
+  unimorph:
+    mode: skip
+refinement:
+  iterations: 2
+  max_words: 70
+  min_link_confidence: 0.52
+  anchor_similarity: 0.72
+  min_affix_support: 3

@@ -60,3 +60,22 @@ Track UPOS, UAS, LAS, FEATS, root accuracy, relation-specific confusion, distanc
 ## Important user constraints
 
 Use a conventional Python repository layout (`pyproject.toml`, `src/ud_treebank_lab`, `tests`, `docs`, `scripts`, `AGENTS.md`), easy setup and configuration, GPU days not weeks per language where possible, full checkpoint/resume, no generative AI annotation, and thorough scientific evaluation and reproducibility.
+
+## Update on 2026-11-08: corpus-wide correspondence induction (v0.3.0)
+
+User stressed that recurrent Hindi words, names, inflections, and function-word
+realizations over the full 17k sentence pairs offer vital independent clues.
+Example: an incorrect token link `ने → शाहजेहन` can be tested against the much
+stronger recurring `शाहजहाँ → शाहजेहन` correspondence; the Hindi postposition
+may be zero/bound/structural, not an overt target token. Also, initial alignments
+and Apertium output may **already exist**. No unwanted recomputation should be
+started by default; each resource's mode and path must be in YAML.
+
+Implemented CPU-side `refine-corpus` and optional `corpus_preprocess` in bilingual
+config. See `docs/CORPUS_REFINEMENT.md`. The 0.3 code estimates corpus-wide
+lexical and sentence cooccurrence, preserves uncertain morph candidate lattices,
+records word/NULL/suffix realization hypotheses, saves complete correction audit
+metadata, and leaves expensive tool runs opt-in. Future work: statistically
+calibrated lexical/morpheme association, phrase and multi-morpheme latent
+alignment, differentiable morphological-generation and contextual analysis,
+measured gold alignment/LAS gains across all 13 languages.

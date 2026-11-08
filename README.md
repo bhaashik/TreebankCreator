@@ -31,7 +31,7 @@ The launcher runs one isolated Python process per GPU, shares the frozen Hindi e
 
 **Resumable cross-lingual Universal Dependencies (UD) treebank bootstrapping, using alignment projection, optional finite-state morphology, grammar-informed soft constraints, and trainable multilingual parsers.**
 
-Status: **research prototype v0.1.1, runnable offline end to end on the included demonstration.** The core projection, splitting, evaluation, visualization, and tests were run. Model downloads and GPU fine-tuning were **not** run in the development environment; verify each optional backend on your VM before launching a large project.
+Status: **research prototype v0.3.0, with offline-tested corpus refinement, projection, and small synthetic bilingual training paths.** Projection, refinement, training with mock cached embeddings, evaluation, visualization, and regression tests were exercised offline. Real XLM-R downloads and GPU fine-tuning were **not** run in this environment; verify each optional backend before launching a large experiment.
 
 This tool **does not use LLMs to generate annotations**. An explicitly optional, conventional neural machine-translation adapter (IndicTrans2) can produce target *sentences* from a UD source treebank; it does not produce trees. Real parallel data may be supplied instead.
 
@@ -162,6 +162,7 @@ udtl synthesize --templates examples/synthetic_templates.json --out synth_data
 
 - [`docs/INSTALL.md`](docs/INSTALL.md): generic Ubuntu/GPU VM installation and resumption.
 - [`docs/LIGHTNING_AI_PRO.md`](docs/LIGHTNING_AI_PRO.md): complete Lightning AI Pro Studio creation, GPU start/sleep, Google Drive/Dropbox, remote model snapshots, backup and resume.
+- [`docs/CORPUS_REFINEMENT.md`](docs/CORPUS_REFINEMENT.md): optional existing alignment/Apertium/UniMorph data and corpus-level repair.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): dependency projection algorithm, constraints, confidence, reference approaches.
 - [`docs/DATA.md`](docs/DATA.md): exact input formats; parallel corpora, Apertium, multi-source, synthetic templates.
 - [`docs/TRAINING.md`](docs/TRAINING.md): Trankit, Hugging Face and Stanza, checkpoint guarantees, evaluation design.
@@ -170,6 +171,26 @@ udtl synthesize --templates examples/synthetic_templates.json --out synth_data
 - [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md): scientific/engineering limitations and prioritized improvements.
 - [`docs/REFERENCES.md`](docs/REFERENCES.md): papers, repositories, model cards, UD license notes.
 - [`docs/CHANGELOG.md`](docs/CHANGELOG.md): release changes, including Lightning deployment additions.
+
+## v0.3.0 — Corpus-wide alignment refinement (opt-in, CPU-only)
+
+Before bilingual neural training, the new `refine-corpus` stage can compare
+all Hindi–target sentence pairs to detect repeated lexical patterns, suspicious
+function-word matches, NULL or bound realizations, and possible target affixes.
+It accepts **existing** alignments, Apertium analyses, and UniMorph tables;
+none of these tools or downloads runs by default. See
+[`docs/CORPUS_REFINEMENT.md`](docs/CORPUS_REFINEMENT.md).
+
+```bash
+bash scripts/demo_corpus.sh
+udtl refine-corpus --config configs/corpus_marathi_supplied.yaml
+# Optional opt-in corpus stage with bilingual trainer:
+# udtl train-bilingual --config configs/bilingual_marathi_corpus.yaml
+```
+
+This stage provides **uncalibrated silver hypotheses**, not validated gold
+word or morpheme alignments. Apertium/UniMorph candidate lattices and inferred
+function-affix statistics are saved separately for review.
 
 ## Outputs
 

@@ -1,0 +1,15 @@
+# Opt-in, reusable CPU corpus refinement before frozen XLM-R caching/training.
+language: mr
+source_ud: ../examples/hindi_source.conllu
+targets: ../examples/marathi_targets.jsonl
+alignments: ../runs/marathi_corpus/alignments.refined.jsonl
+corpus_preprocess: corpus_marathi_supplied.yaml
+source_cache: ../caches/shared_hindi
+# target caches and runs are per-language.
+target_cache: ../caches/marathi_corpus
+output_dir: ../runs/bilingual_mr_corpus
+model: xlm-roberta-base
+epochs: 5
+batch_size: 2
+accumulate: 4
+save_steps: 50
