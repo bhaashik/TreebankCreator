@@ -39,3 +39,7 @@ The first real GPU test must confirm model download, stable 1/2-GPU memory use, 
 CPU corpus-wide alignment correction stage (`udtl refine-corpus`) and reused
 Apertium/UniMorph/existing-aligner inputs. Run `bash scripts/demo_corpus.sh`
 and `pytest -q tests/test_corpus_refinement.py` before modifying these stages.
+
+**v0.3.1:** `docs/EXTERNAL_RESOURCE_IMPORT.md` explains the separate
+`udtl import-resources --config configs/import_existing_resources.yaml` stage.
+No external aligner or analyzer is invoked.

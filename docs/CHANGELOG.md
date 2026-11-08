@@ -1,3 +1,14 @@
+## v0.3.1 — Standalone import of existing alignment/Apertium files
+
+- Added `udtl import-alignments`, `udtl import-apertium` and YAML-controlled
+  `udtl import-resources`: no external aligner, analyzer or GPU needed.
+- Auto-detect AWESOME-align Pharaoh vs genuine GIZA++ A3 by content, normalize
+  direction and 0/1-based indices, preserve NULL and optional alignment probabilities.
+- Parse native Apertium ambiguous lexical streams (sentence/token/flat/word-list),
+  preserve all readings and raw tags, validate against target sentence tokens.
+- Added atomic/non-overwriting JSONL outputs, example files, documentation,
+  and offline regression/integration tests with corpus refinement.
+
 ## v0.3.0 — Corpus-level evidence and resource-aware preprocessing
 
 - Added opt-in `udtl refine-corpus --config` CPU stage with explicit `supplied`,

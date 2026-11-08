@@ -23,3 +23,11 @@ supplied input files; do not claim inferred affix hypotheses are gold labels.
 Keep a regression test for Hindi `ने` incorrectly paired with target
 `शाहजेहन` and for repeated cross-script names. Preserve original raw
 alignment provenance and soft uncertainty for training.
+
+## External resource conversion
+
+The separate `resource_import.py` stage converts preexisting AWESOME-align
+Pharaoh/GIZA A3 alignments and native Apertium outputs to JSONL. Conversion
+must never auto-run SimAlign or Apertium or overwrite supplied raw inputs.
+Keep validation against source CoNLL-U and target token order. See
+`docs/EXTERNAL_RESOURCE_IMPORT.md` and `tests/test_resource_import.py`.

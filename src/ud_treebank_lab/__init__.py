@@ -1,2 +1,2 @@
 """UD Treebank Lab: multilingual dependency annotation projection."""
-__version__ = "0.3.0"
+__version__ = "0.3.1"

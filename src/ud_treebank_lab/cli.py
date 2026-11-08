@@ -117,6 +117,28 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--epochs", type=int, default=6)
     r.add_argument("--batch-size", type=int, default=4)
     r.add_argument("--max-pairs", type=int, default=None)
+    r = sub.add_parser("import-alignments", help="Convert existing AWESOME Pharaoh or GIZA A3 to JSONL")
+    r.add_argument("--source-ud", required=True)
+    r.add_argument("--targets", required=True)
+    r.add_argument("--input", required=True)
+    r.add_argument("--out", required=True)
+    r.add_argument("--format", choices=["auto", "awesome", "a3"], default="auto")
+    r.add_argument("--probabilities", help="Optional AWESOME-align per-link probability file")
+    r.add_argument("--sentence-order", choices=["source_ud", "targets"], default="source_ud")
+    r.add_argument("--a3-source-side", choices=["auto", "annotated", "plain"], default="auto")
+    r.add_argument("--no-verify-forms", action="store_true")
+    r.add_argument("--overwrite", action="store_true")
+    r = sub.add_parser("import-apertium", help="Convert existing Apertium stream to JSONL lattices")
+    r.add_argument("--targets", required=True)
+    r.add_argument("--input", required=True)
+    r.add_argument("--out", required=True)
+    r.add_argument("--layout", choices=["auto", "sentence-lines", "token-lines", "stream", "word-list"],
+                   default="auto")
+    r.add_argument("--no-verify-forms", action="store_true")
+    r.add_argument("--overwrite", action="store_true")
+    r = sub.add_parser("import-resources", help="Separate YAML-configured import of supplied resources")
+    r.add_argument("--config", required=True)
+    r.add_argument("--overwrite", action="store_true")
     r = sub.add_parser("refine-corpus", help="CPU-only corpus-wide alignment/morphology induction")
     r.add_argument("--config", required=True, help="Corpus preprocessing YAML with explicit resource modes")
     r.add_argument("--force", action="store_true", help="Recompute derived outputs, never supplied inputs")
@@ -260,6 +282,24 @@ def main(argv: list[str] | None = None) -> int:
                                  args.cache_root, args.runs_root, model=args.model,
                                  epochs=args.epochs, batch_size=args.batch_size,
                                  max_pairs=args.max_pairs))
+        elif args.cmd == "import-alignments":
+            from .resource_import import import_alignments
+            _report(import_alignments(source_ud=args.source_ud, targets=args.targets,
+                                      input_path=args.input, output=args.out,
+                                      format=args.format, probabilities=args.probabilities,
+                                      sentence_order=args.sentence_order,
+                                      a3_source_side=args.a3_source_side,
+                                      verify_forms=not args.no_verify_forms,
+                                      overwrite=args.overwrite))
+        elif args.cmd == "import-apertium":
+            from .resource_import import import_apertium
+            _report(import_apertium(targets=args.targets, input_path=args.input,
+                                    output=args.out, layout=args.layout,
+                                    verify_forms=not args.no_verify_forms,
+                                    overwrite=args.overwrite))
+        elif args.cmd == "import-resources":
+            from .resource_import import import_resources
+            _report(import_resources(args.config, overwrite=args.overwrite))
         elif args.cmd == "refine-corpus":
             from .corpus_refinement import run_corpus_refinement
             _report(run_corpus_refinement(args.config, force=args.force))
@@ -306,7 +346,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             raise AssertionError(args.cmd)
         return 0
-    except (ValueError, KeyError, FileNotFoundError, RuntimeError, __import__("subprocess").CalledProcessError) as exc:
+    except (ValueError, KeyError, OSError, RuntimeError, __import__("subprocess").CalledProcessError) as exc:
         print(f"udtl: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
 

@@ -1,0 +1,17 @@
+# Explicit, standalone CPU-only import. This file uses the bundled demo resources.
+# Replace these two inputs with your actual .A3.final, awesome-align or Apertium files.
+source_ud: ../examples/hindi_source.conllu
+targets: ../examples/marathi_targets.jsonl
+alignment:
+  input: ../examples/existing_awesome_align.txt
+  output: ../runs/import_demo/alignment.jsonl
+  format: auto              # auto | awesome (Pharaoh 0-based) | a3 (GIZA one-based)
+  sentence_order: source_ud # or targets; must match the existing aligner input order
+  a3_source_side: auto      # auto | annotated | plain (only for real GIZA A3)
+  verify_forms: true
+  # probabilities: ../data/optional_awesome_probabilities.txt
+apertium:
+  input: ../examples/existing_apertium.stream
+  output: ../runs/import_demo/apertium.jsonl
+  layout: auto              # auto | sentence-lines | token-lines | stream | word-list
+  verify_forms: true
