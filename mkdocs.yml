@@ -1,0 +1,23 @@
+site_name: Bhaashik TreebankCreator
+site_description: Hindi-reference bilingual UD treebank creation and corpus-wide alignment refinement
+site_url: https://bhaashik.github.io/TreebankCreator/
+repo_url: https://github.com/bhaashik/TreebankCreator
+repo_name: bhaashik/TreebankCreator
+edit_uri: edit/main/docs/
+theme:
+  name: readthedocs
+nav:
+  - Overview: index.md
+  - Installation: INSTALL.md
+  - Data and configuration: DATA.md
+  - Corpus-wide alignment refinement: CORPUS_REFINEMENT.md
+  - Bilingual neural training: BILINGUAL_TRAINING.md
+  - Kaggle dual-GPU: KAGGLE_DUAL_T4.md
+  - Lightning AI: LIGHTNING_AI_PRO.md
+  - Evaluation: EVALUATION.md
+  - Languages: LANGUAGES.md
+  - Architecture: ARCHITECTURE.md
+  - Codex handoff: CODEX_START_HERE.md
+  - Changelog: CHANGELOG.md
+  - Limitations: LIMITATIONS.md
+  - References: REFERENCES.md

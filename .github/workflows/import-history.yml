@@ -1,0 +1,76 @@
+name: Import TreebankCreator release history
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.migration/history.bundle.xz'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: treebankcreator-history-import
+  cancel-in-progress: false
+
+jobs:
+  import-history:
+    if: github.repository == 'bhaashik/TreebankCreator'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the incoming revision
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify and import original Git objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .migration/history.bundle.xz
+          echo '5a11c56f137e48f40bb434a73907f30bc33700288662fcac69d29f6e18ce2ee1  .migration/history.bundle.xz' | sha256sum -c -
+          xz -dc .migration/history.bundle.xz > "$RUNNER_TEMP/history.bundle"
+          git bundle verify "$RUNNER_TEMP/history.bundle"
+          git fetch "$RUNNER_TEMP/history.bundle" \
+            'refs/heads/main:refs/heads/release-history' \
+            '+refs/tags/*:refs/tags/*'
+          test "$(git rev-parse release-history)" = '1f63b9f9b1c09774a8af82aaeeab80548f4145fe'
+          for tag in v0.1.0 v0.1.1 v0.2.0 v0.3.0; do
+            git rev-parse --verify "refs/tags/$tag" >/dev/null
+          done
+      - name: Merge the release history without rewriting existing commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$GITHUB_SHA" || { echo 'main changed after dispatch; refusing to overwrite'; exit 1; }
+          git checkout -B publish-history "$GITHUB_SHA"
+          git merge --no-ff --allow-unrelated-histories -s ours \
+            -m 'Merge v0.1.0 through v0.3.0 preserved release history' \
+            release-history
+          # Extract the v0.3.0 snapshot over the current repository. Existing
+          # remote-only files and the documentation Pages workflow are retained.
+          git archive release-history | tar -xf -
+          git rm -f .migration/history.bundle.xz .github/workflows/import-history.yml
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish v0.3.0 source while retaining previous GitHub commits'
+          fi
+          git push origin release-history:refs/heads/release-history
+          git push origin \
+            refs/tags/v0.1.0 refs/tags/v0.1.1 \
+            refs/tags/v0.2.0 refs/tags/v0.3.0
+          git push origin HEAD:refs/heads/main
+      - name: Start documentation deployment on the updated main branch
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          # Pushes using GITHUB_TOKEN do not automatically trigger other workflows.
+          gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
