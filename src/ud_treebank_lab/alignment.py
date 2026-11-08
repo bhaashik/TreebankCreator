@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import importlib.util
 import unicodedata
 from pathlib import Path
 from typing import Iterator
@@ -95,7 +96,25 @@ def read_targets(path: str | Path) -> dict[str, dict]:
 
 def run_alignment(source_ud: str | Path, target_jsonl: str | Path, output: str | Path,
                   backend: str = "simalign", model: str = "xlmr", method: str = "itermax",
-                  device: str = "auto", lexicon: dict | None = None) -> dict:
+                  device: str = "auto", lexicon: dict | None = None,
+                  binary: str = "awesome-align") -> dict:
+    if backend == "auto":
+        # Explicitly requested fallback; keep supplied resources untouched.
+        if importlib.util.find_spec("simalign") is not None:
+            backend = "simalign"
+        else:
+            from .awesome_adapter import _executable
+            try:
+                _executable(binary)
+            except RuntimeError as exc:
+                raise RuntimeError("Neither SimAlign nor AWESOME-align is installed; "
+                                   "run scripts/install_linguistic_tools.sh --aligner auto") from exc
+            backend = "awesome"
+    if backend == "awesome":
+        from .awesome_adapter import run_awesome_alignment
+        return run_awesome_alignment(source_ud, target_jsonl, output, model=model,
+                                     extraction=("softmax" if method == "itermax" else method),
+                                     device=device, binary=binary)
     targets = read_targets(target_jsonl)
     done = done_ids(output)
     engine = None

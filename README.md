@@ -37,6 +37,27 @@ See **[External resource import and formats](docs/EXTERNAL_RESOURCE_IMPORT.md)**
 Put the resulting `.jsonl` paths in the existing `refine-corpus` YAML under
 `resources.alignment.mode: supplied` and `resources.apertium.mode: supplied`.
 
+## External tool installer (v0.3.3)
+
+A standalone, **explicit** setup script now checks/installs Apertium + lttoolbox,
+SimAlign and the optional AWESOME-align neural aligner. It reuses existing
+installations and can check or preview the plan without modifying anything.
+The AWESOME-align CLI is also supported as an optional alignment generation
+backend (`backend: awesome` or opt-in fallback `backend: auto`). Existing
+supplied alignment and Apertium files still **take precedence**, with no
+installation or model execution.
+
+```bash
+bash scripts/install_linguistic_tools.sh --apertium --aligner simalign --dry-run
+bash scripts/install_linguistic_tools.sh --apertium --aligner simalign
+bash scripts/install_linguistic_tools.sh --aligner awesome --check
+```
+
+See [external tool installation](docs/EXTERNAL_TOOL_INSTALL.md) and
+[conditional resource setup](docs/CONDITIONAL_RESOURCE_SETUP.md). Apertium
+language-specific compiled analyzers are separate resources and must be
+provided or installed explicitly.
+
 ## New in v0.2.0 — bilingual UD-guided neural parser and Kaggle T4×2 launcher
 
 **[Bilingual training documentation](docs/BILINGUAL_TRAINING.md)** · **[Kaggle two-GPU setup](docs/KAGGLE_DUAL_T4.md)** · **[Kaggle notebook](notebooks/Kaggle_Dual_T4.ipynb)**

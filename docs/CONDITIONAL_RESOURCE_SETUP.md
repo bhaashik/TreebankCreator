@@ -1,4 +1,4 @@
-# Conditional resource availability, import, generation and setup (v0.3.2)
+# Conditional resource availability, import, generation and setup (v0.3.3)
 
 The source of truth is **one corpus-refinement YAML**. Resource preparation may
 be run separately, or it runs automatically when `udtl refine-corpus` is
@@ -82,6 +82,12 @@ required. For Apertium, `lt-proc` (or `binary`) must be executable and the
 compiled `analyzer_bin` must exist. A setup command can create both, but
 neither will be downloaded or compiled by default. UniMorph supports
 supplied TSV or skip only (no generation or installation).
+
+A convenience script is now available for explicitly installing these tools:
+[Installing neural aligners and Apertium](EXTERNAL_TOOL_INSTALL.md).
+`backend: awesome` and `backend: auto` also support generation through
+the optional AWESOME-align CLI (which uses multilingual BERT). For predictable
+experiments, pin your selected backend and model in YAML.
 
 **Do not confuse the executable with models:** even with SimAlign installed,
 its transformer weights may be downloaded on first model invocation. Ensure

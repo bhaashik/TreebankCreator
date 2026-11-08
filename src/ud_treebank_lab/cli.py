@@ -40,11 +40,12 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--source", required=True)
     r.add_argument("--targets", required=True)
     r.add_argument("--out", required=True)
-    r.add_argument("--backend", choices=["simalign", "lexicon", "identity"], default="simalign")
+    r.add_argument("--backend", choices=["simalign", "awesome", "auto", "lexicon", "identity"], default="simalign")
     r.add_argument("--model", default="xlmr")
-    r.add_argument("--method", choices=["itermax", "inter", "mwmf"], default="itermax")
+    r.add_argument("--method", choices=["itermax", "inter", "mwmf", "softmax", "entmax15"], default="itermax")
     r.add_argument("--device", default="auto")
     r.add_argument("--lexicon", help="JSON file mapping source forms to target forms (lexicon backend)")
+    r.add_argument("--binary", default="awesome-align", help="AWESOME-align executable or absolute path")
     r = sub.add_parser("project", help="Project single aligned source-target pair to CoNLL-U")
     r.add_argument("--source", required=True)
     r.add_argument("--targets", required=True)
@@ -250,7 +251,7 @@ def main(argv: list[str] | None = None) -> int:
             from .alignment import run_alignment
             lexicon = json.loads(Path(args.lexicon).read_text(encoding="utf-8")) if args.lexicon else None
             _report(run_alignment(args.source, args.targets, args.out, args.backend, args.model,
-                                  args.method, args.device, lexicon))
+                                  args.method, args.device, lexicon, binary=args.binary))
         elif args.cmd == "project":
             from .projection import run_projection
             rules = yaml.safe_load(Path(args.rules).read_text(encoding="utf-8")) if args.rules else None

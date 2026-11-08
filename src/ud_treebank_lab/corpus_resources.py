@@ -61,6 +61,15 @@ def _missing_setup(name: str, spec: dict) -> list[str]:
     setup = spec.get("setup") or {}
     checks = []
     module = setup.get("check_module")
+    if name == "alignment" and spec.get("backend") == "auto" and not setup.get("check_module") and not setup.get("check_executable"):
+        simalign_found = importlib.util.find_spec("simalign") is not None
+        from .awesome_adapter import _executable
+        try:
+            _executable(spec.get("binary", "awesome-align"))
+            awesome_found = True
+        except RuntimeError:
+            awesome_found = False
+        return [] if simalign_found or awesome_found else ["SimAlign module or AWESOME-align CLI"]
     if module is None and name == "alignment" and spec.get("backend", "simalign") == "simalign":
         module = "simalign"
     if module:
@@ -71,6 +80,8 @@ def _missing_setup(name: str, spec: dict) -> list[str]:
         if not present:
             checks.append(f"Python module {module!r}")
     binary = setup.get("check_executable")
+    if binary is None and name == "alignment" and spec.get("backend", "simalign") == "awesome":
+        binary = spec.get("binary", "awesome-align")
     if binary is None and name == "apertium":
         binary = spec.get("binary", "lt-proc")
     if binary and not (shutil.which(binary) or (Path(binary).is_file() and
@@ -236,7 +247,8 @@ def prepare_corpus_resources(config: str | Path | dict, *, force: bool = False,
                                       backend=spec.get("backend", "simalign"),
                                       model=spec.get("model", "xlmr"),
                                       method=spec.get("method", "itermax"),
-                                      device=spec.get("device", "auto"), lexicon=lex)
+                                      device=spec.get("device", "auto"), lexicon=lex,
+                                      binary=spec.get("binary", "awesome-align"))
                     else:
                         generate_apertium_lattice(cfg["targets"], staging,
                                                  spec["analyzer_bin"],

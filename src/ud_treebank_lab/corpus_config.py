@@ -12,7 +12,7 @@ import yaml
 RESOURCE_KEYS = {"alignment", "apertium", "unimorph"}
 RESOURCE_OPTIONS = {
     "alignment": {"mode", "path", "format", "available", "if_missing", "output",
-                  "backend", "model", "method", "device", "lexicon", "setup",
+                  "backend", "model", "method", "device", "lexicon", "binary", "setup",
                   "probabilities", "sentence_order", "a3_source_side", "verify_forms"},
     "apertium": {"mode", "path", "format", "available", "if_missing", "output",
                  "analyzer_bin", "binary", "batch_size", "setup", "layout", "verify_forms"},

@@ -1,3 +1,13 @@
+# v0.3.3 — explicit neural-alignment and Apertium setup (2026-11-08)
+
+- Added `scripts/install_linguistic_tools.sh`, an idempotent opt-in installer
+  and `--check`/`--dry-run` preflight for SimAlign, optional legacy AWESOME-align,
+  Apertium + lttoolbox, and optional language analyzer packages.
+- Added optional `backend: awesome` and `backend: auto` generation through the
+  AWESOME CLI with strict token/sentence-index validation and JSONL output.
+- Added conditional setup documentation and tests; existing supplied-resource
+  behavior remains unchanged. External actual installs are not exercised in CI.
+
 ## v0.3.2 — Conditional resource availability, import, generation and setup
 
 - One corpus YAML can select already-available JSONL/raw files, automatically convert

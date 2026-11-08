@@ -40,3 +40,13 @@ Keep validation against source CoNLL-U and target token order. See
   a generator is needed, and the executable/module/analyzer is missing.
 - Never modify or overwrite an original input file. Keep resource and corpus manifests.
 - Preserve old `mode: supplied|generate|skip` configurations.
+
+## External linguistic tools (v0.3.3)
+
+- Use `scripts/install_linguistic_tools.sh` for explicit Apertium/lttoolbox and
+  SimAlign/AWESOME-align setup. No installation during supplied-file reuse.
+- Prefer `--dry-run` and `--check`. Apt needs an explicit `--apertium`; compiled
+  language-specific Apertium analyzer binaries are a separate dependency.
+- `backend: auto` is opt-in, selects SimAlign first and AWESOME-align second;
+  for published experiments pin the actual backend and pretrained model.
+- The legacy AWESOME CLI is tested with local mocks, not certified on GPUs.
