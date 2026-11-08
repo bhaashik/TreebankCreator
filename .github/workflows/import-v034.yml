@@ -1,0 +1,65 @@
+name: Publish NVIDIA Titan V profile (v0.3.4)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.migration/v0.3.4.patch.xz'
+      - '.github/workflows/import-v034.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: publish-v034
+  cancel-in-progress: false
+jobs:
+  import-and-test:
+    if: github.repository == 'bhaashik/TreebankCreator'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Verify and apply v0.3.4 patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'de1d8fe103e09591abddbc0740c5e64c0a283a5955ecdb9e430fb4cad6447b68  .migration/v0.3.4.patch.xz' | sha256sum -c -
+          xz -dc .migration/v0.3.4.patch.xz > "$RUNNER_TEMP/v034.patch"
+          git apply --check "$RUNNER_TEMP/v034.patch"
+          git apply --index "$RUNNER_TEMP/v034.patch"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install CPU test dependencies and run regression suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e '.[test]' numpy
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pytest -q
+          bash -n scripts/setup_titanv.sh
+          bash -n scripts/activate_titanv.sh
+          bash scripts/setup_titanv.sh --dry-run
+      - name: Commit tested update and tag release without rewriting history
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git fetch --no-tags origin main
+          test "$(git rev-parse origin/main)" = "$GITHUB_SHA" || { echo 'main changed; refusing to push'; exit 1; }
+          git rm -f .migration/v0.3.4.patch.xz .github/workflows/import-v034.yml
+          git add -A
+          git commit -m 'Add isolated NVIDIA Titan V CUDA setup profile and documentation (v0.3.4)'
+          git tag -a v0.3.4 -m 'TreebankCreator v0.3.4: NVIDIA Titan V setup'
+          git push origin HEAD:refs/heads/main refs/tags/v0.3.4
+      - name: Refresh documentation
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main
