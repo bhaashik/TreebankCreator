@@ -17,7 +17,7 @@ def main():
         if data:items[f"releases/TreebankCreator-source-{tag}.zip"]=data
     with tempfile.TemporaryDirectory() as td:
         name=Path(td)/"release-history.bundle"
-        subprocess.check_call(["git","bundle","create",str(name),"--all"])
+        subprocess.check_call(["git","bundle","create",str(name),*[f"refs/tags/{tag}" for tag in VERSIONS]])
         items["history/TreebankCreator-release-history.bundle"]=name.read_bytes()
     for path in DOCS:
         data=git("show",f"v0.3.4:{path}")
