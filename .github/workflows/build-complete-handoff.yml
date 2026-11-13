@@ -1,0 +1,35 @@
+name: Build complete TreebankCreator handoff archive
+on:
+  push:
+    branches:
+      - 'handoff/complete-2026-11-13'
+    paths:
+      - 'handoff/build_archive.py'
+      - '.github/workflows/build-complete-handoff.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Fetch original tagged release history and conversation record
+        run: |
+          git fetch origin '+refs/tags/*:refs/tags/*'
+          git fetch origin 'refs/heads/handoff/conversation-2026-11-13:refs/remotes/origin/handoff/conversation-2026-11-13'
+      - name: Build and verify complete handoff archive
+        run: |
+          python handoff/build_archive.py --kind complete --out handoff/TreebankCreator_Complete_Handoff_GitHub_Reconstructed_2026-11-13.zip
+          unzip -t handoff/TreebankCreator_Complete_Handoff_GitHub_Reconstructed_2026-11-13.zip | tail -n 2
+      - name: Commit handoff archive only to its own branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add handoff/TreebankCreator_Complete_Handoff_GitHub_Reconstructed_2026-11-13.zip
+          git diff --cached --quiet || git commit -m 'Add GitHub reconstructed complete handoff ZIP'
+          git push origin HEAD:refs/heads/handoff/complete-2026-11-13
